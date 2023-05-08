@@ -1,0 +1,85 @@
+javascript:(function() {
+  // Define game variables
+  var canvas = document.createElement('canvas');
+  var ctx = canvas.getContext('2d');
+  var tileSize = 10;
+  var w = 350;
+  var h = 350;
+  var score = 0;
+  var snake = {
+    x: Math.floor(Math.random() * (w / tileSize)) * tileSize,
+    y: Math.floor(Math.random() * (h / tileSize)) * tileSize,
+    dx: tileSize,
+    dy: 0,
+    cells: [],
+    maxCells: 4
+  };
+  var apple = {
+    x: Math.floor(Math.random() * (w / tileSize)) * tileSize,
+    y: Math.floor(Math.random() * (h / tileSize)) * tileSize
+  };
+  
+  // Set up the game
+  canvas.width = w;
+  canvas.height = h;
+  document.body.appendChild(canvas);
+  document.addEventListener('keydown', function(e) {
+    // Prevent snake from turning back on itself
+    if (e.which === 37 && snake.dx === 0) {
+      snake.dx = -tileSize;
+      snake.dy = 0;
+    } else if (e.which === 38 && snake.dy === 0) {
+      snake.dy = -tileSize;
+      snake.dx = 0;
+    } else if (e.which === 39 && snake.dx === 0) {
+      snake.dx = tileSize;
+      snake.dy = 0;
+    } else if (e.which === 40 && snake.dy === 0) {
+      snake.dy = tileSize;
+      snake.dx = 0;
+    }
+  });
+
+  // Update the game
+  function update() {
+    // Move the snake
+    snake.x += snake.dx;
+    snake.y += snake.dy;
+    
+    // Wrap snake around the edges of the canvas
+    if (snake.x < 0) {
+      snake.x = canvas.width - tileSize;
+    } else if (snake.x >= canvas.width) {
+      snake.x = 0;
+    }
+    
+    if (snake.y < 0) {
+      snake.y = canvas.height - tileSize;
+    } else if (snake.y >= canvas.height) {
+      snake.y = 0;
+    }
+    
+    // Add a new cell to the snake
+    snake.cells.unshift({ x: snake.x, y: snake.y });
+    
+    // Remove cells if snake is too long
+    if (snake.cells.length > snake.maxCells) {
+      snake.cells.pop();
+    }
+    
+    // Check if snake has collided with apple
+    if (snake.x === apple.x && snake.y === apple.y) {
+      // Increase score and add new apple
+      score++;
+      apple.x = Math.floor(Math.random() * (w / tileSize)) * tileSize;
+      apple.y = Math.floor(Math.random() * (h / tileSize)) * tileSize;
+      snake.maxCells++;
+    }
+    
+    // Check if snake has collided with itself
+    for (var i = 1; i < snake.cells.length; i++) {
+      if (snake.cells[i].x === snake.x && snake.cells[i].y === snake.y) {
+        // Game over
+        alert('Game over! Your score: ' + score);
+        snake.cells = [];
+        snake.maxCells =
